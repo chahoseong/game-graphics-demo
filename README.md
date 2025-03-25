@@ -1,2 +1,2 @@
-# game-engine-experiments
-C++20 based game engine for studying game programming
+# game-graphics-demo
+C++20 based game graphics for studying game programming
