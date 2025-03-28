@@ -139,7 +139,7 @@
     <ClCompile Include="..\Common\ShaderLoader.cpp" />
     <ClCompile Include="..\Common\Utility.cpp" />
     <ClCompile Include="..\Common\Vertex.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
