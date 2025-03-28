@@ -10,6 +10,7 @@ export module core;
 import <filesystem>;
 import <format>;
 import <iostream>;
+import <map>;
 import <memory>;
 import <span>;
 import <string>;
@@ -26,8 +27,8 @@ public:
 	virtual bool Startup(HWND window);
 	virtual void Shutdown();
 
-	virtual void Update();
-	virtual void Render();
+	void Update();
+	void Render();
 
 	void Resize(int width, int height);
 	void Resume();
@@ -41,11 +42,16 @@ public:
 	bool IsPaused() const { return paused_; }
 
 protected:
+	virtual void Update(float deltaTime) { }
+	virtual void Render(ID3D11DeviceContext* immediateContext) { }
+
 	ID3D11Device* GraphicsDevice() const& { return graphicsDevice_.Get(); }
-	ID3D11DeviceContext* ImmediateContext() const& { return immediateContext_.Get(); }
-	IDXGISwapChain* SwapChain() const& { return swapChain_.Get(); }
-	ID3D11RenderTargetView* RenderTargetView() const& { return renderTargetView_.Get(); }
-	ID3D11DepthStencilView* DepthStencilView() const& { return depthStencilView_.Get(); }
+	// ID3D11DeviceContext* ImmediateContext() const& { return immediateContext_.Get(); }
+	// IDXGISwapChain* SwapChain() const& { return swapChain_.Get(); }
+	// ID3D11RenderTargetView* RenderTargetView() const& { return renderTargetView_.Get(); }
+	// ID3D11DepthStencilView* DepthStencilView() const& { return depthStencilView_.Get(); }
+
+	void SetBackgroundColor(float r, float g, float b, float a);
 
 private:
 	bool InitDirect3D(HWND window);
@@ -65,13 +71,17 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> graphicsDevice_;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediateContext_;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain_;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView_;
+	
+	std::map<void*, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> renderTargetViewCache_;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> currentRenderTargetView_;
+
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView_;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer_;
 	
 	D3D_DRIVER_TYPE driverType_ = D3D_DRIVER_TYPE_HARDWARE;
 	DXGI_FORMAT backBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM;
 	D3D11_VIEWPORT viewport_;
+	DirectX::XMFLOAT4 backgroundColor_ = { 0.69f, 0.77f, 0.87f, 1.0f };
 };
 
 module :private;
@@ -218,12 +228,30 @@ void Game::Shutdown()
 
 void Game::Update()
 {
-
+	Update(0.0f);
 }
 
 void Game::Render()
 {
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	ThrowIfFailed(swapChain_->GetBuffer(0, IID_PPV_ARGS(&backBuffer)));
 
+	if (auto it = renderTargetViewCache_.find(backBuffer.Get()); it != renderTargetViewCache_.end()) {
+		currentRenderTargetView_ = it->second;
+	}
+	else {
+		ThrowIfFailed(graphicsDevice_->CreateRenderTargetView(backBuffer.Get(), nullptr, currentRenderTargetView_.GetAddressOf()));
+		renderTargetViewCache_.insert({ backBuffer.Get(), currentRenderTargetView_ });
+	}
+
+	immediateContext_->OMSetRenderTargets(1, currentRenderTargetView_.GetAddressOf(), depthStencilView_.Get());
+
+	immediateContext_->ClearRenderTargetView(currentRenderTargetView_.Get(), reinterpret_cast<const float*>(&backgroundColor_));
+	immediateContext_->ClearDepthStencilView(depthStencilView_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	Render(immediateContext_.Get());
+
+	ThrowIfFailed(swapChain_->Present(0, 0));
 }
 
 void Game::Resize(int width, int height)
@@ -232,15 +260,15 @@ void Game::Resize(int width, int height)
 	assert(immediateContext_);
 	assert(swapChain_);
 
-	renderTargetView_.Reset();
+	immediateContext_->OMSetRenderTargets(0, nullptr, nullptr);
+	currentRenderTargetView_.Reset();
+	renderTargetViewCache_.clear();
+
 	depthStencilView_.Reset();
 	depthStencilBuffer_.Reset();
 
-	// Resize the swap chain and recreate the render target view
+	// Resize the swap chain
 	ThrowIfFailed(swapChain_->ResizeBuffers(0, width, height, backBufferFormat_, 0));
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer = nullptr;
-	ThrowIfFailed(swapChain_->GetBuffer(0, IID_PPV_ARGS(&backBuffer)));
-	ThrowIfFailed(graphicsDevice_->CreateRenderTargetView(backBuffer.Get(), nullptr, renderTargetView_.GetAddressOf()));
 
 	// Create the depth/stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -259,10 +287,6 @@ void Game::Resize(int width, int height)
 
 	ThrowIfFailed(graphicsDevice_->CreateTexture2D(&depthStencilDesc, nullptr, depthStencilBuffer_.GetAddressOf()));
 	ThrowIfFailed(graphicsDevice_->CreateDepthStencilView(depthStencilBuffer_.Get(), nullptr, depthStencilView_.GetAddressOf()));
-
-	// Bind the render target view and depth/stencil view to the pipeline
-	std::vector<ID3D11RenderTargetView*> renderTargetViewes = { RenderTargetView() };
-	immediateContext_->OMSetRenderTargets(renderTargetViewes.size(), renderTargetViewes.data(), depthStencilView_.Get());
 
 	// Set the viewport transform
 	viewport_.TopLeftX = 0;
@@ -305,4 +329,12 @@ std::wstring Game::GetAssetPath(std::wstring_view filename) const
 	}
 	std::wstring assetPath = std::format(L"{}{}{}", assetDirectory_, std::filesystem::path::preferred_separator, filename);
 	return assetPath;
+}
+
+void Game::SetBackgroundColor(float r, float g, float b, float a)
+{
+	backgroundColor_.x = r;
+	backgroundColor_.y = g;
+	backgroundColor_.z = b;
+	backgroundColor_.w = a;
 }

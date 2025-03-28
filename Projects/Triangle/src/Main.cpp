@@ -64,24 +64,15 @@ public:
 		Game::Shutdown();
 	}
 
-	void Render() override
+	void Render(ID3D11DeviceContext* immediateContext) override
 	{
-		std::vector<ID3D11RenderTargetView*> renderTargetViewes = { RenderTargetView() };
-		ImmediateContext()->OMSetRenderTargets(renderTargetViewes.size(), renderTargetViewes.data(), DepthStencilView());
-
-		const float clearColor[] = { 0.69f, 0.77f, 0.87f, 1.0f };
-		ImmediateContext()->ClearRenderTargetView(RenderTargetView(), clearColor);
-		ImmediateContext()->ClearDepthStencilView(DepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 		UINT stride = sizeof(Vertex::PosColor);
 		UINT offset = 0;
-		ImmediateContext()->IASetVertexBuffers(0, 1, vertexBuffer_.GetAddressOf(), &stride, &offset);
+		immediateContext->IASetVertexBuffers(0, 1, vertexBuffer_.GetAddressOf(), &stride, &offset);
 
-		pipeline_->Apply(ImmediateContext());
+		pipeline_->Apply(immediateContext);
 
-		ImmediateContext()->Draw(3, 0);
-
-		ThrowIfFailed(SwapChain()->Present(0, 0));
+		immediateContext->Draw(3, 0);
 	}
 
 private:
