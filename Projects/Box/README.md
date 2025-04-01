@@ -21,7 +21,8 @@
 |-------|-----|----------|-----------------------------|
 |Dynamic|Write|Read      |CPU에서 자주 데이터를 갱신할 때|
 |Default|     |Read/Write|일반적인 경우                 |
-![자세한 내용](https://learn.microsoft.com/ko-kr/windows/win32/api/d3d11/ne-d3d11-d3d11_usage)
+
+https://learn.microsoft.com/ko-kr/windows/win32/api/d3d11/ne-d3d11-d3d11_usage
 
 ### ImGui Win32 메시지 루프
 ```cpp
