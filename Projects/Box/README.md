@@ -1,6 +1,6 @@
 # Box Demo
 ![screenshot](https://github.com/chahoseong/game-graphics-demo/blob/main/Projects/Box/Screenshot.png)
-이 데모는 박스에 **이동(Translation)**, **회전(Rotation)**, **비례(Scaling)**을 적용하고 
+이 데모는 박스에 **이동(Translation)**, **회전(Rotation)**, **비례(Scaling)** 을 적용하고 
 **카메라 시점(View)** 및 **투영(Projection)** 을 통해 물체를 그리는 프로그램입니다.
 
 ## 사용 기술
