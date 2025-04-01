@@ -17,12 +17,13 @@
 
 ## 알게된 점
 ### D3D11_USAGE 특징
+
 |Usage  |CPU  |GPU       | 용도                        |
 |-------|-----|----------|-----------------------------|
 |Dynamic|Write|Read      |CPU에서 자주 데이터를 갱신할 때|
 |Default|     |Read/Write|일반적인 경우                 |
 
-https://learn.microsoft.com/ko-kr/windows/win32/api/d3d11/ne-d3d11-d3d11_usage
+- https://learn.microsoft.com/ko-kr/windows/win32/api/d3d11/ne-d3d11-d3d11_usage
 
 ### ImGui Win32 메시지 루프
 ```cpp
@@ -38,4 +39,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 ```
 ImGui를 Win32 환경에서 사용할 경우, `ImGui_ImplWin32_WndProcHandler()` 함수를 선언하고
-윈도우 메시지 프로시저를 처리하는 함수에 윈도우 메시지를 보내주어야 한다.
+윈도우 메시지 프로시저를 처리하는 함수에 윈도우 메시지를 보내주어야 합니다.
