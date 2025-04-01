@@ -52,12 +52,22 @@ public:
 		pipeline_->Apply(context);
 
 		// Update box transform
+		DirectX::XMFLOAT3 boxRotationRadians(
+			DirectX::XMConvertToRadians(boxRotation_.x),
+			DirectX::XMConvertToRadians(boxRotation_.y),
+			DirectX::XMConvertToRadians(boxRotation_.z)
+		);
 		DirectX::XMMATRIX W = DirectX::XMMatrixScalingFromVector(DirectX::XMLoadFloat3(&boxScale_)) *
-			DirectX::XMMatrixRotationRollPitchYawFromVector(DirectX::XMLoadFloat3(&boxRotation_)) *
+			DirectX::XMMatrixRotationRollPitchYawFromVector(DirectX::XMLoadFloat3(&boxRotationRadians)) *
 			DirectX::XMMatrixTranslationFromVector(DirectX::XMLoadFloat3(&boxPosition_));
 
 		// Make view matrix
-		DirectX::XMMATRIX cameraRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(DirectX::XMLoadFloat3(&cameraRotation_));
+		DirectX::XMFLOAT3 cameraRotationRadians(
+			DirectX::XMConvertToRadians(cameraRotation_.x),
+			DirectX::XMConvertToRadians(cameraRotation_.y),
+			DirectX::XMConvertToRadians(cameraRotation_.z)
+		);
+		DirectX::XMMATRIX cameraRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(DirectX::XMLoadFloat3(&cameraRotationRadians));
 		DirectX::XMVECTOR cameraForward = DirectX::XMVector3Transform(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), cameraRotation);
 		DirectX::XMVECTOR cameraFocus = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&cameraPosition_), cameraForward);
 		DirectX::XMMATRIX V = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&cameraPosition_), cameraFocus, DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
