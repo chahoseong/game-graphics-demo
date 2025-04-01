@@ -1,8 +1,20 @@
 module;
+// C
 #include <cstdlib>
 
+// Windows
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
+// ImGui
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam);
 
 export module platform.windows;
 
@@ -20,10 +32,15 @@ public:
 
 private:
 	static bool InitInstance(Game* game);
+	static bool InitImGui(Game* game);
+
 	static LRESULT CALLBACK HandleMessage(HWND, UINT, WPARAM, LPARAM);
 
 private:
 	static std::unique_ptr<Application> instance_;
+
+public:
+	~Application();
 
 private:
 	explicit Application(HWND hWnd);
@@ -44,6 +61,13 @@ Application::Application(HWND hWnd)
 {
 }
 
+Application::~Application()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
 int Application::Run(Game* game)
 {
 	if (!InitInstance(game)) {
@@ -51,6 +75,10 @@ int Application::Run(Game* game)
 	}
 
 	if (!game->Startup(instance_->window_)) {
+		return EXIT_FAILURE;
+	}
+
+	if (!InitImGui(game)) {
 		return EXIT_FAILURE;
 	}
 
@@ -66,8 +94,19 @@ int Application::Run(Game* game)
 		}
 		else {
 			if (!game->IsPaused()) {
+				// Start the Dear ImGui frame
+				ImGui_ImplDX11_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+
 				game->Update();
 				game->Render();
+				
+				// Render the Dear ImGui frame
+				ImGui::Render();
+				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+				game->Present();
 			}
 			else {
 				Sleep(100);
@@ -120,8 +159,38 @@ bool Application::InitInstance(Game* game)
 	return true;
 }
 
+bool Application::InitImGui(Game* game)
+{
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.DisplaySize = ImVec2(static_cast<float>(game->ScreenWidth()), static_cast<float>(game->ScreenHeight()));
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	// ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	if (!ImGui_ImplWin32_Init(instance_->window_)) {
+		std::cerr << "Failed to init ImGui win32\n";
+		return false;
+	}
+
+	if (!ImGui_ImplDX11_Init(game->GraphicsDevice(), game->ImmediateContext())) {
+		std::cerr << "Failed to init ImGui dx11\n";
+		return false;
+	}
+
+	return true;
+}
+
 LRESULT CALLBACK Application::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam)) {
+		return true;
+	}
+
 	Game* game = reinterpret_cast<Game*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	switch (message) {

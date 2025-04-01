@@ -1,5 +1,8 @@
 module;
+// C
 #include <cassert>
+
+// Windows
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
@@ -29,6 +32,7 @@ public:
 
 	void Update();
 	void Render();
+	void Present();
 
 	void Resize(int width, int height);
 	void Resume();
@@ -39,13 +43,17 @@ public:
 	std::wstring_view Title() const { return title_; }
 	int ScreenWidth() const { return screenWidth_; }
 	int ScreenHeight() const { return screenHeight_; }
+	float AspectRatio() const { return static_cast<float>(screenWidth_) / screenHeight_; }
 	bool IsPaused() const { return paused_; }
+	
+	ID3D11Device* GraphicsDevice() const& { return graphicsDevice_.Get(); }
+	ID3D11DeviceContext* ImmediateContext() const& { return immediateContext_.Get(); }
 
 protected:
-	virtual void Update(float deltaTime) { }
-	virtual void Render(ID3D11DeviceContext* immediateContext) { }
+	virtual void OnUpdate(float deltaTime) { }
+	virtual void OnRender(ID3D11DeviceContext* immediateContext) { }
+	virtual void OnResize() { }
 
-	ID3D11Device* GraphicsDevice() const& { return graphicsDevice_.Get(); }
 	// ID3D11DeviceContext* ImmediateContext() const& { return immediateContext_.Get(); }
 	// IDXGISwapChain* SwapChain() const& { return swapChain_.Get(); }
 	// ID3D11RenderTargetView* RenderTargetView() const& { return renderTargetView_.Get(); }
@@ -228,7 +236,7 @@ void Game::Shutdown()
 
 void Game::Update()
 {
-	Update(0.0f);
+	OnUpdate(0.0f);
 }
 
 void Game::Render()
@@ -249,8 +257,11 @@ void Game::Render()
 	immediateContext_->ClearRenderTargetView(currentRenderTargetView_.Get(), reinterpret_cast<const float*>(&backgroundColor_));
 	immediateContext_->ClearDepthStencilView(depthStencilView_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	Render(immediateContext_.Get());
+	OnRender(immediateContext_.Get());
+}
 
+void Game::Present()
+{
 	ThrowIfFailed(swapChain_->Present(0, 0));
 }
 
@@ -296,6 +307,8 @@ void Game::Resize(int width, int height)
 	viewport_.MinDepth = 0.0f;
 	viewport_.MaxDepth = 1.0f;
 	immediateContext_->RSSetViewports(1, &viewport_);
+
+	OnResize();
 }
 
 void Game::Resume()
@@ -314,7 +327,7 @@ std::wstring Game::GetAssetPath(std::wstring_view filename) const
 		std::filesystem::path path = std::filesystem::current_path();
 		while (path.has_parent_path()) {
 			for (const auto& entry : std::filesystem::directory_iterator(path)) {
-				if (entry.is_directory() && entry.path().filename() == L"Assets") {
+				if (entry.is_directory() && entry.path().filename() == L"assets") {
 					assetDirectory_ = entry.path();
 					break;
 				}
