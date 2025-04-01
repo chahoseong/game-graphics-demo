@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Triangle", "Projects\Triangle\Triangle.vcxproj", "{4B66E2E0-2FF4-48FA-B335-B7EAF623CEAD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box", "Projects\Box\Box.vcxproj", "{D094DEDA-2211-4D99-8F03-D138F3AD75BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{4B66E2E0-2FF4-48FA-B335-B7EAF623CEAD}.Release|x64.Build.0 = Release|x64
 		{4B66E2E0-2FF4-48FA-B335-B7EAF623CEAD}.Release|x86.ActiveCfg = Release|Win32
 		{4B66E2E0-2FF4-48FA-B335-B7EAF623CEAD}.Release|x86.Build.0 = Release|Win32
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Debug|x64.ActiveCfg = Debug|x64
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Debug|x64.Build.0 = Debug|x64
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Debug|x86.ActiveCfg = Debug|Win32
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Debug|x86.Build.0 = Debug|Win32
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Release|x64.ActiveCfg = Release|x64
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Release|x64.Build.0 = Release|x64
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Release|x86.ActiveCfg = Release|Win32
+		{D094DEDA-2211-4D99-8F03-D138F3AD75BE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,10 @@
 ![screenshot](https://github.com/chahoseong/game-graphics-demo/blob/main/Projects/Triangle/Screenshot.png)
 이 데모는 Direct3D를 초기화 하고 Vertex Buffer 사용하여 삼각형을 보여주는 프로그램입니다.
 
+## 사용 기술
+- C++20
+- Direct3D 11
+
 ## 학습 내용
 - Window 생성 및 메시지 루프
 - Direct3D 초기화

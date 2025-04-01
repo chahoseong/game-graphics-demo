@@ -133,13 +133,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\Application.cpp" />
-    <ClCompile Include="..\Common\Game.cpp" />
-    <ClCompile Include="..\Common\GraphicsPipeline.cpp" />
-    <ClCompile Include="..\Common\ShaderLoader.cpp" />
-    <ClCompile Include="..\Common\Utility.cpp" />
-    <ClCompile Include="..\Common\Vertex.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\GraphicsPipeline.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ShaderLoader.cpp" />
+    <ClCompile Include="src\Utility.cpp" />
+    <ClCompile Include="src\Vertex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="asssets\shaders\ColorPixelShader.hlsl">
+      <FileType>Document</FileType>
+    </CustomBuild>
+    <CustomBuild Include="asssets\shaders\ColorVertexShader.hlsl">
+      <FileType>Document</FileType>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

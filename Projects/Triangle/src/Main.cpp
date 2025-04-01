@@ -59,12 +59,7 @@ public:
 		return true;
 	}
 
-	void Shutdown() override
-	{
-		Game::Shutdown();
-	}
-
-	void Render(ID3D11DeviceContext* immediateContext) override
+	void OnRender(ID3D11DeviceContext* immediateContext) override
 	{
 		UINT stride = sizeof(Vertex::PosColor);
 		UINT offset = 0;
