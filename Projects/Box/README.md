@@ -1,5 +1,5 @@
 # Box Demo
-![screenshot](https://github.com/chahoseong/game-graphics-demo/blob/main/Projects/Triangle/Screenshot.png)
+![screenshot](https://github.com/chahoseong/game-graphics-demo/blob/main/Projects/Box/Screenshot.png)
 이 데모는 박스에 **이동(Translation)**, **회전(Rotation)**, **비례(Scaling)**을 적용하고 
 **카메라 시점(View)** 및 **투영(Projection)**을 통해 물체를 그리는 프로그램입니다.
 
@@ -21,6 +21,7 @@
 |-------|-----|----------|-----------------------------|
 |Dynamic|Write|Read      |CPU에서 자주 데이터를 갱신할 때|
 |Default|     |Read/Write|일반적인 경우                 |
+![자세한 내용](https://learn.microsoft.com/ko-kr/windows/win32/api/d3d11/ne-d3d11-d3d11_usage)
 
 ### ImGui Win32 메시지 루프
 ```cpp
